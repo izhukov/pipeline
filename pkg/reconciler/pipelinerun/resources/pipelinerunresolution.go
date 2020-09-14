@@ -184,6 +184,25 @@ func (t *ResolvedPipelineRunTask) parentTasksSkip(facts *PipelineRunFacts) bool 
 	return false
 }
 
+func (t *ResolvedPipelineRunTask) ResolveTaskResultInFinally(facts *PipelineRunFacts) (ResolvedResultRefs, error) {
+	var r ResolvedResultRefs
+	var err error
+	if facts.isFinalTask(t.PipelineTask.Name) {
+		r, err = ResolveResultRefs(facts.State, PipelineRunState{t})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return r, nil
+}
+
+func (t *ResolvedPipelineRunTask) IsFinallySkipped(facts *PipelineRunFacts) error {
+	if _, err := t.ResolveTaskResultInFinally(facts); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetTaskRun is a function that will retrieve the TaskRun name.
 type GetTaskRun func(name string) (*v1beta1.TaskRun, error)
 

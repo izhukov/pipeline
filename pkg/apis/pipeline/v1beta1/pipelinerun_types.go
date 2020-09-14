@@ -358,6 +358,9 @@ type SkippedTask struct {
 	// WhenExpressions is the list of checks guarding the execution of the PipelineTask
 	// +optional
 	WhenExpressions []WhenExpression `json:"whenExpressions,omitempty"`
+	// reason why a task was skipped if there any
+	// mainly applies to finally tasks which are added to this list when referenced task results are initialized
+	Reason string `json:"reason,omitempty"`
 }
 
 // PipelineRunResult used to describe the results of a pipeline

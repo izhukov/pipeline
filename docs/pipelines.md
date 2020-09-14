@@ -759,6 +759,36 @@ spec:
           value: "someURL"
 ```
 
+#### Consuming `Task` execution results in `finally`
+
+Final tasks can be configured to consume `Results` of `PipelineTask` from the `tasks` section:
+
+```yaml
+spec:
+  tasks:
+    - name: count-comments-before
+      taskRef:
+        Name: count-comments
+    - name: add-comment
+      taskRef:
+        Name: add-comment
+    - name: count-comments-after
+      taskRef:
+        Name: count-comments
+  finally:
+    - name: check-count
+      taskRef:
+        Name: check-count
+      params:
+        - name: before-count
+          value: $(tasks.count-comments-before.results.count)
+        - name: after-count
+          value: $(tasks.count-comments-after.results.count)
+```
+**Note:** The scheduling of such final task does not change, it will still be executed in parallel with other
+final tasks after all non-final tasks are done.
+
+
 ### `PipelineRun` Status with `finally`
 
 With `finally`, `PipelineRun` status is calculated based on `PipelineTasks` under `tasks` section and final tasks.
@@ -835,35 +865,6 @@ no `runAfter` can be specified in final tasks.
 `Tasks` in a `Pipeline` can be configured to run only if some conditions are satisfied using `conditions`. But the
 final tasks are guaranteed to be executed after all `PipelineTasks` therefore no `conditions` can be specified in
 final tasks.
-
-#### Cannot configure `Task` execution results with `finally`
-
-Final tasks can not be configured to consume `Results` of `PipelineTask` from `tasks` section i.e. the following
-example is not supported right now but we are working on adding support for the same (tracked in issue
-[#2557](https://github.com/tektoncd/pipeline/issues/2557)).
-
-```yaml
-spec:
-  tasks:
-    - name: count-comments-before
-      taskRef:
-        Name: count-comments
-    - name: add-comment
-      taskRef:
-        Name: add-comment
-    - name: count-comments-after
-      taskRef:
-        Name: count-comments
-  finally:
-    - name: check-count
-      taskRef:
-        Name: check-count
-      params:
-        - name: before-count
-          value: $(tasks.count-comments-before.results.count) #invalid
-        - name: after-count
-          value: $(tasks.count-comments-after.results.count) #invalid
-```
 
 #### Cannot configure `Pipeline` result with `finally`
 

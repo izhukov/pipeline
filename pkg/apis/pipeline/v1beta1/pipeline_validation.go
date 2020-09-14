@@ -329,29 +329,10 @@ func validateFinalTasks(finalTasks []PipelineTask) *apis.FieldError {
 		}
 	}
 
-	if err := validateTaskResultReferenceNotUsed(finalTasks).ViaField("finally"); err != nil {
-		return err
-	}
-
 	if err := validateTasksInputFrom(finalTasks).ViaField("finally"); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func validateTaskResultReferenceNotUsed(tasks []PipelineTask) *apis.FieldError {
-	for idx, t := range tasks {
-		for _, p := range t.Params {
-			expressions, ok := GetVarSubstitutionExpressionsForParam(p)
-			if ok {
-				if LooksLikeContainsResultRefs(expressions) {
-					return apis.ErrInvalidValue(fmt.Sprintf("no task result allowed under params,"+
-						"final task param %s has set task result as its value", p.Name), "params").ViaIndex(idx)
-				}
-			}
-		}
-	}
 	return nil
 }
 

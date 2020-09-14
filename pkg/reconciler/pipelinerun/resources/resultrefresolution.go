@@ -37,9 +37,19 @@ type ResolvedResultRef struct {
 }
 
 // ResolveResultRefs resolves any ResultReference that are found in the target ResolvedPipelineRunTask
+func ResolveResultRef(pipelineRunState PipelineRunState, target *ResolvedPipelineRunTask) (ResolvedResultRefs, error) {
+	resolvedResultRefs, err := convertToResultRefs(pipelineRunState, target)
+	if err != nil {
+		return nil, err
+	}
+	return resolvedResultRefs, nil
+}
+
+// ResolveResultRefs resolves any ResultReference that are found in the target ResolvedPipelineRunTask
 func ResolveResultRefs(pipelineRunState PipelineRunState, targets PipelineRunState) (ResolvedResultRefs, error) {
 	var allResolvedResultRefs ResolvedResultRefs
 	for _, target := range targets {
+
 		resolvedResultRefs, err := convertToResultRefs(pipelineRunState, target)
 		if err != nil {
 			return nil, err

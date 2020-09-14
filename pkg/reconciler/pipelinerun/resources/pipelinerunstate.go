@@ -305,6 +305,13 @@ func (facts *PipelineRunFacts) GetSkippedTasks() []v1beta1.SkippedTask {
 			}
 			skipped = append(skipped, skippedTask)
 		}
+		if err := rprt.IsFinallySkipped(facts); err != nil {
+			skippedTask := v1beta1.SkippedTask{
+				Name:   rprt.PipelineTask.Name,
+				Reason: "failed to resolve task results" + err.Error(),
+			}
+			skipped = append(skipped, skippedTask)
+		}
 	}
 	return skipped
 }
@@ -372,6 +379,10 @@ func (facts *PipelineRunFacts) getPipelineTasksCount() pipelineRunStatusCount {
 		// increment incomplete counter since the task is pending and not executed yet
 		default:
 			s.Incomplete++
+		}
+		// checking if any finally tasks were referring to invalid/missing task results
+		if err := t.IsFinallySkipped(facts); err != nil {
+			s.Skipped++
 		}
 	}
 	return s

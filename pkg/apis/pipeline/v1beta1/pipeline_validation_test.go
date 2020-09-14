@@ -1877,19 +1877,6 @@ func TestValidateFinalTasks_Failure(t *testing.T) {
 			Paths:   []string{"finally[0].resources.inputs[0]"},
 		},
 	}, {
-		name: "invalid pipeline with final tasks having reference to task results",
-		finalTasks: []PipelineTask{{
-			Name:    "final-task",
-			TaskRef: &TaskRef{Name: "final-task"},
-			Params: []Param{{
-				Name: "param1", Value: ArrayOrString{Type: ParamTypeString, StringVal: "$(tasks.a-task.results.output)"},
-			}},
-		}},
-		expectedError: apis.FieldError{
-			Message: `invalid value: no task result allowed under params,final task param param1 has set task result as its value`,
-			Paths:   []string{"finally[0].params"},
-		},
-	}, {
 		name: "invalid pipeline with final task specifying when expressions",
 		finalTasks: []PipelineTask{{
 			Name:    "final-task",

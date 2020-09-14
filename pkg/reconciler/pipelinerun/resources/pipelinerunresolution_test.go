@@ -1858,3 +1858,75 @@ func TestResolvePipeline_WhenExpressions(t *testing.T) {
 		}
 	})
 }
+
+// validate the taskRun object is included in the resolved pipelineRunState once a task is marked as failure
+// due to invalid task results in finally task
+/*func TestResolvePipeline_FinalTasks_With_TaskResults(t *testing.T) {
+	names.TestingSeed()
+
+	p := &v1beta1.Pipeline{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "namespace",
+			Name:      "pipeline",
+		},
+		Spec: v1beta1.PipelineSpec{
+			Tasks: v1beta1.PipelineTaskList{pts[0]},
+		},
+	}
+
+	taskrunStatus := map[string]*v1beta1.PipelineRunTaskRunStatus{}
+	taskrunStatus["pipelinerun-final-task-1-dxdxa"] = &v1beta1.PipelineRunTaskRunStatus{
+		PipelineTaskName: "mytask1",
+		Status: &v1beta1.TaskRunStatus{
+			Status: duckv1beta1.Status{
+				Conditions: duckv1beta1.Conditions{{
+					Type:   apis.ConditionSucceeded,
+					Status: corev1.ConditionFalse,
+					Reason: ReasonInvalidTaskResultsInFinallyTask,
+					Message: fmt.Sprintf("Failed to resolve task params for finally Task %s in PipelineRun %s: %s",
+						"mytask1", "pipeline", "task does not exist"),
+				}},
+			},
+		},
+	}
+
+	pr := v1beta1.PipelineRun{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "pipelinerun",
+		},
+		Status: v1beta1.PipelineRunStatus{
+			PipelineRunStatusFields: v1beta1.PipelineRunStatusFields{
+				TaskRuns: taskrunStatus,
+			},
+		},
+	}
+
+	getTask := func(ctx context.Context, name string) (v1beta1.TaskInterface, error) { return task, nil }
+	// Return an error when the TaskRun is retrieved, as if it didn't exist
+	getTaskRun := func(name string) (*v1beta1.TaskRun, error) {
+		return nil, kerrors.NewNotFound(v1beta1.Resource("taskrun"), name)
+	}
+	pipelineState, err := ResolvePipelineRunTask(context.Background(), pr, getTask, getTaskRun, nil, pts[0], nil)
+	if err != nil {
+		t.Fatalf("Error getting tasks for fake pipeline %s: %s", p.ObjectMeta.Name, err)
+	}
+	expectedState := ResolvedPipelineRunTask{
+		PipelineTask: &p.Spec.Tasks[0],
+		TaskRunName:  "pipelinerun-final-task-1-dxdxa",
+		TaskRun: &v1beta1.TaskRun{
+			ObjectMeta: metav1.ObjectMeta{Name: "pipelinerun-final-task-1-dxdxa"},
+			Status:     *taskrunStatus["pipelinerun-final-task-1-dxdxa"].Status,
+		},
+		ResolvedTaskResources: &resources.ResolvedTaskResources{
+			TaskName: task.Name,
+			TaskSpec: &task.Spec,
+			Inputs:   map[string]*resourcev1alpha1.PipelineResource{},
+			Outputs:  map[string]*resourcev1alpha1.PipelineResource{},
+		},
+	}
+
+	if d := cmp.Diff(pipelineState, expectedState, cmpopts.IgnoreUnexported(v1beta1.TaskRunSpec{})); d != "" {
+		t.Fatalf("Expected to get pipeline state %v with taskRun with reason InvalidTaskResultsInFinallyTask,"+
+			" but actual differed %s", expectedState, diff.PrintWantGot(d))
+	}
+}*/
